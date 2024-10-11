@@ -198,6 +198,21 @@ func (m *MockOIDC) Token(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (m *MockOIDC) validateTokenParams(rw http.ResponseWriter, req *http.Request) bool {
+	if clientID, clientSecret, ok := req.BasicAuth(); ok {
+		if clientID != m.ClientID {
+			errorResponse(rw, InvalidClient, "Invalid client id", http.StatusUnauthorized)
+			return false
+		}
+		if clientSecret != m.ClientSecret {
+			errorResponse(rw, InvalidClient, "Invalid client secret", http.StatusUnauthorized)
+			return false
+		}
+		if !assertPresence([]string{"grant_type"}, rw, req) {
+			return false
+		}
+		return true
+	}
+
 	if !assertPresence([]string{"client_id", "client_secret", "grant_type"}, rw, req) {
 		return false
 	}
