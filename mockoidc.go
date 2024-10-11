@@ -21,6 +21,8 @@ type MockOIDC struct {
 	ClientID     string
 	ClientSecret string
 
+	CustomIssuer string
+
 	AccessTTL  time.Duration
 	RefreshTTL time.Duration
 
@@ -207,6 +209,10 @@ func (m *MockOIDC) Addr() string {
 
 // Issuer returns the OIDC Issuer that will be in `iss` token claims
 func (m *MockOIDC) Issuer() string {
+	if m.CustomIssuer != "" {
+		return m.CustomIssuer + IssuerBase
+	}
+
 	if m.Server == nil {
 		return ""
 	}
